@@ -6,17 +6,19 @@ from graph import Graph, DGraph
 # undirected graph
 print("Example of unweighted undirected graph")
 G = Graph()
-G.add(2,3)       						# add edge (2,3)
-G.add(3,5)       						# add edge (3,5)
-G.add(3,10)      						# add edge (3,10)
-print( (3,5) in G )					# should be True
-print( (5,3) in G )					# should be True
-print( (10,5) in G )					# should be False
+G.add(2,3)       						# add edge (2,3); (3,2) is automatically addeded.
+G.add(3,5)       						# add edge (3,5); (5,3) is automatically addeded.
+G.add(3,10)      						# add edge (3,10); (10,3) is automatically addeded.
+print( (3,5) in G )					# True
+print( (5,3) in G )					# True
+print( (10,5) in G )					# False
 for v in G.Vertices:
 	print("vertex", v)
 for e in G.Edges:
 	print("edge", e)
-print( "Neighbors of vertex 3:", G.Neighbors[3] )
+print( "Neighbors of vertex 3:"
+for v in G.Neighbors[3]:
+	print("\t", v)
 
 
 # weighted directed graph
