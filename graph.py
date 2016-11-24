@@ -1,21 +1,3 @@
-'''
-	UUG is a simple unweighted, undirected graph data structure
-	for the purpose of testing graph algorithms.
-
-	Usage:
-	G = Graph()
-	G.add(2,3)       						# add edge (2,3)
-	G.add(3,5)       						# add edge (3,5)
-	G.add(3,10)      						# add edge (3,10)
-	print( (3,5) in G )					# should be True
-	print( (5,3) in G )					# should be True
-	print( (10,5) in G )				# should be False
-	print( (1,5) in G )					# should be False
-	print( "All vertices:", G.Vertices )
-	print( "All edges:", G.Edges )
-	print( "Neighbor of vertex 3:", G.Neighbors[3] )
-
-'''
 import random
 INFINITY = float("inf")
 
