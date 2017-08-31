@@ -5,7 +5,7 @@ def random_graph(n,p,seed=None):
 	random.seed(seed)
 	g = Graph()
 	for i in range(n):
-		for j in range(i,n):
+		for j in range(i+1,n):
 			if random.random() < p:
 				g.add(i,j)
 	return g
@@ -15,7 +15,14 @@ class Node(object):
 		self.id = id
 
 	def __str__(self):
-		return str(self.id)
+		out = 'Node {} '.format(self.id)
+		attr = []
+		for a in dir(self):
+			if not a.startswith('__') and not a.endswith('__'):
+				attr.append('{}: {}'.format(a, getattr(self,a)))
+		if len(attr) > 0:
+			out += '[' + '; '.join(attr) + ']'
+		return out
 
 class Graph(object):
 	def __init__(self, *vertex_attrs):
@@ -64,6 +71,9 @@ class Graph(object):
 		else:
 			return thing in self.Edges
 
+	def print(self):
+		for v, n_v in self.Neighbors.items():
+			print('Neighbors of node {}: {}'.format(v, n_v))
 
 class DGraph(object):
 	def __init__(self, *vertex_attrs):
