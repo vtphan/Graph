@@ -1,15 +1,82 @@
 import random
+
 INFINITY = float("inf")
 
-def random_graph(n,p,seed=None):
+#----------------------------------------------------------
+def random_weight(min_weight, max_weight):
+	w = None
+	if min_weight!=None and max_weight!=None and min_weight<=max_weight:
+		w = random.randint(min_weight, max_weight)
+	return w
+
+#----------------------------------------------------------
+# n - number of vertices
+# p - edge probability
+# directed - edge direction
+#----------------------------------------------------------
+def random_graph(
+		n,
+		p,
+		directed=True,
+		strict=True,
+		seed=None,
+		min_weight=None,
+		max_weight=None,
+	):
 	random.seed(seed)
-	g = Graph()
+	if directed:
+		g = DGraph()
+	else:
+		g = Graph()
 	for i in range(n):
-		for j in range(i+1,n):
-			if random.random() < p:
-				g.add(i,j)
+		g.add_vertex(i)
+	for i in g.Vertices:
+		for j in g.Vertices:
+			if not strict or i!=j:
+				if random.random() < p:
+					g.add(i, j, random_weight(min_weight, max_weight))
+				if directed and random.random() < p:
+					g.add(j, i, random_weight(min_weight, max_weight))
 	return g
 
+#----------------------------------------------------------
+# n - number of vertices
+# p - edge probability
+# directed - edge direction
+#----------------------------------------------------------
+def random_bipartite_graph(
+		n, 
+		m,
+		p,
+		directed=True,
+		seed=None,
+		min_weight=None,
+		max_weight=None,
+	):
+	random.seed(seed)
+	if directed:
+		g = DGraph('group')
+	else:
+		g = Graph('group')
+
+	for i in range(n):
+		g.add_vertex(i)
+		g[i].group = 0
+
+	for i in range(n,m+n):
+		g.add_vertex(i)
+		g[i].group = 1
+
+	for i in g.Vertices:
+		for j in g.Vertices:
+			if g[i].group != g[j].group:
+				if random.random() < p:
+					g.add(i, j, random_weight(min_weight, max_weight))
+				if directed and random.random() < p:
+					g.add(j, i, random_weight(min_weight, max_weight))
+	return g
+
+#----------------------------------------------------------
 class Node(object):
 	def __init__(self, id):
 		self.id = id
@@ -24,6 +91,7 @@ class Node(object):
 			out += '[' + '; '.join(attr) + ']'
 		return out
 
+#----------------------------------------------------------
 class Graph(object):
 	def __init__(self, *vertex_attrs):
 		self.Edges = {}
@@ -71,10 +139,31 @@ class Graph(object):
 		else:
 			return thing in self.Edges
 
-	def print(self):
+	def show(self):
 		for v, n_v in self.Neighbors.items():
 			print('Neighbors of node {}: {}'.format(v, n_v))
 
+	def draw(self, prog='dot', output='output.svg'):
+		try:
+			import pygraphviz
+
+			g = pygraphviz.AGraph(strict=True, directed=False)
+			g.add_nodes_from(self.Vertices.keys())
+			for u, Nu in self.Neighbors.items():
+				for v in Nu:
+					if self.Edges[u,v] is not None:
+						g.add_edge(u,v,label=self.Edges[u,v])
+					else:
+						g.add_edge(u,v)
+			# g.graph_attr['dpi'] = 300
+			g.node_attr['shape'] = 'circle'
+			g.layout(prog=prog)
+			g.draw(output)
+			print('Graph image saved to', output)
+		except:
+			print('Could not draw the graph.')
+
+#----------------------------------------------------------
 class DGraph(object):
 	def __init__(self, *vertex_attrs):
 		self.Edges = {}
@@ -129,3 +218,26 @@ class DGraph(object):
 		else:
 			return thing in self.Edges
 
+	def show(self):
+		for e,w in self.Edges.items():
+			print('Edge {} has weight {}'.format(e,w))
+
+	def draw(self, prog='dot', output='output.svg'):
+		try:
+			import pygraphviz
+
+			g = pygraphviz.AGraph(strict=True, directed=True)
+			g.add_nodes_from(self.Vertices.keys())
+			for u, Nu in self.Out.items():
+				for v in Nu:
+					if self.Edges[u,v] is not None:
+						g.add_edge(u,v,label=self.Edges[u,v])
+					else:
+						g.add_edge(u,v)
+			# g.graph_attr['dpi'] = 300
+			g.node_attr['shape'] = 'circle'
+			g.layout(prog=prog)
+			g.draw(output)
+			print('Graph image saved to', output)
+		except:
+			print('Could not draw the graph.')
