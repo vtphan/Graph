@@ -30,3 +30,4 @@ for v in D.Out[3]:
 print("Vertices that point to vertex 5.")
 for v in D.In[5]:
 	print("\t", v)
+

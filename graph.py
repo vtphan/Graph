@@ -143,26 +143,6 @@ class Graph(object):
 		for v, n_v in self.Neighbors.items():
 			print('Neighbors of node {}: {}'.format(v, n_v))
 
-	def draw(self, prog='dot', output='output.svg'):
-		try:
-			import pygraphviz
-
-			g = pygraphviz.AGraph(strict=True, directed=False)
-			g.add_nodes_from(self.Vertices.keys())
-			for u, Nu in self.Neighbors.items():
-				for v in Nu:
-					if self.Edges[u,v] is not None:
-						g.add_edge(u,v,label=self.Edges[u,v])
-					else:
-						g.add_edge(u,v)
-			# g.graph_attr['dpi'] = 300
-			g.node_attr['shape'] = 'circle'
-			g.layout(prog=prog)
-			g.draw(output)
-			print('Graph image saved to', output)
-		except:
-			print('Could not draw the graph.')
-
 #----------------------------------------------------------
 class DGraph(object):
 	def __init__(self, *vertex_attrs):
@@ -222,22 +202,31 @@ class DGraph(object):
 		for e,w in self.Edges.items():
 			print('Edge {} has weight {}'.format(e,w))
 
-	def draw(self, prog='dot', output='output.svg'):
-		try:
-			import pygraphviz
+#----------------------------------------------------------
+def draw(g, output='mygraph', engine='dot', format='svg'):
+	try:
+		import graphviz
+	except:
+		print('Must install graphviz to draw graphs.')
+		return
 
-			g = pygraphviz.AGraph(strict=True, directed=True)
-			g.add_nodes_from(self.Vertices.keys())
-			for u, Nu in self.Out.items():
-				for v in Nu:
-					if self.Edges[u,v] is not None:
-						g.add_edge(u,v,label=self.Edges[u,v])
-					else:
-						g.add_edge(u,v)
-			# g.graph_attr['dpi'] = 300
-			g.node_attr['shape'] = 'circle'
-			g.layout(prog=prog)
-			g.draw(output)
-			print('Graph image saved to', output)
-		except:
-			print('Could not draw the graph.')
+	if type(g) == Graph:
+		gv = graphviz.Graph(format=format, engine=engine, strict=True, node_attr={'shape':'circle'})
+	elif type(g) == DGraph:
+		gv = graphviz.Digraph(format=format, engine=engine, strict=True, node_attr={'shape':'circle'})
+	else:
+		print('Unknown graph type')
+		return
+
+	for vid in g.Vertices:
+		gv.node(str(vid), str(vid))
+	for e,w in g.Edges.items():
+		if w is not None:
+			gv.edge(str(e[0]),str(e[1]),label=str(w))
+		else:
+			gv.edge(str(e[0]), str(e[1]))
+	print('Output saved to {}.{}'.format(output, format))
+	gv.render(output)
+
+#----------------------------------------------------------
+
